@@ -12,6 +12,7 @@
     <Name>Benchmark102</Name>
     <RootNamespace>Benchmark102</RootNamespace>
     <InterpreterId>MSBuild|env1|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +23,43 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="aes_gcm_algorithm.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="algorithm_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ascon_algorithm.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Benchmark102.py" />
+    <Compile Include="benchmark\test_aes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="benchmark\test_ascon.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="benchmark\test_chacha.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="chacha20_poly1305_algorithm.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_aes_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_ascon_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_chacha_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_common_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_temp.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="algorithms\" />
