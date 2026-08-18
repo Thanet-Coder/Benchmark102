@@ -66,6 +66,9 @@
     <Compile Include="test_temp.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="validate_benchmark_results.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="algorithms\" />
