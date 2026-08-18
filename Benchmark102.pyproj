@@ -33,6 +33,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Benchmark102.py" />
+    <Compile Include="benchmark\benchmark_runner.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="benchmark\test_aes.py">
       <SubType>Code</SubType>
     </Compile>
