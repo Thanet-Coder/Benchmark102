@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import statistics
+import csv
 
 # Allow Python to find the project modules
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
@@ -96,16 +97,133 @@ def calculate_statistics(timings):
     }
 
 
+def create_benchmark_result(
+    algorithm,
+    data_size_bytes,
+    operation,
+    timings
+):
+    """
+    Create a structured benchmark result.
+
+    Args:
+        algorithm: Cryptographic algorithm object.
+        data_size_bytes: Size of the test data in bytes.
+        operation: Encryption or decryption.
+        timings: List of execution times in nanoseconds.
+
+    Returns:
+        Dictionary containing the benchmark result.
+    """
+
+    statistics_result = calculate_statistics(timings)
+
+    return {
+        "algorithm": algorithm.name,
+        "data_size_bytes": data_size_bytes,
+        "operation": operation,
+        "measurements": timings,
+        "mean_ns": statistics_result["mean_ns"],
+        "median_ns": statistics_result["median_ns"],
+        "min_ns": statistics_result["min_ns"],
+        "max_ns": statistics_result["max_ns"],
+        "stdev_ns": statistics_result["stdev_ns"]
+    }
+
+
+def export_results_to_csv(results):
+    """
+    Export benchmark results to a CSV file.
+
+    Args:
+        results: List of structured benchmark result dictionaries.
+
+    Returns:
+        Path to the generated CSV file.
+    """
+
+    # Create the results directory if it does not already exist.
+    results_directory = os.path.join(
+        PROJECT_ROOT,
+        "results"
+    )
+
+    os.makedirs(
+        results_directory,
+        exist_ok=True
+    )
+
+    # Define the output CSV file.
+    output_file = os.path.join(
+        results_directory,
+        "benchmark_results.csv"
+    )
+
+    # Define the CSV column headings.
+    fieldnames = [
+        "algorithm",
+        "data_size_bytes",
+        "operation",
+        "measurements",
+        "mean_ns",
+        "median_ns",
+        "min_ns",
+        "max_ns",
+        "stdev_ns"
+    ]
+
+    # Write the benchmark results to the CSV file.
+    with open(
+        output_file,
+        "w",
+        newline="",
+        encoding="utf-8"
+    ) as csv_file:
+
+        writer = csv.DictWriter(
+            csv_file,
+            fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+
+        for result in results:
+
+            # Make a copy so the original structured result
+            # remains unchanged.
+            csv_row = result.copy()
+
+            # CSV has no native list type, so store the
+            # individual measurements as semicolon-separated
+            # values.
+            csv_row["measurements"] = ";".join(
+                str(value)
+                for value in result["measurements"]
+            )
+
+            writer.writerow(csv_row)
+
+    return output_file
+
+
 # ============================================================
 # Benchmark operations
 # ============================================================
 
-def benchmark_encryption(algorithm, key, data, associated_data):
+def benchmark_encryption(
+    algorithm,
+    key,
+    data,
+    associated_data
+):
     """Benchmark encryption for one algorithm and data size."""
 
     timings = []
 
+    # --------------------------------------------------------
     # Warm-up runs
+    # --------------------------------------------------------
+
     for _ in range(WARMUP_RUNS):
 
         nonce = get_nonce(algorithm)
@@ -117,7 +235,10 @@ def benchmark_encryption(algorithm, key, data, associated_data):
             associated_data
         )
 
+    # --------------------------------------------------------
     # Measured runs
+    # --------------------------------------------------------
+
     for _ in range(MEASUREMENT_RUNS):
 
         nonce = get_nonce(algorithm)
@@ -146,7 +267,10 @@ def benchmark_decryption(
 
     timings = []
 
+    # --------------------------------------------------------
     # Prepare a valid ciphertext for decryption
+    # --------------------------------------------------------
+
     nonce = get_nonce(algorithm)
 
     ciphertext = algorithm.encrypt(
@@ -156,7 +280,10 @@ def benchmark_decryption(
         associated_data
     )
 
+    # --------------------------------------------------------
     # Warm-up runs
+    # --------------------------------------------------------
+
     for _ in range(WARMUP_RUNS):
 
         algorithm.decrypt(
@@ -166,7 +293,10 @@ def benchmark_decryption(
             associated_data
         )
 
+    # --------------------------------------------------------
     # Measured runs
+    # --------------------------------------------------------
+
     for _ in range(MEASUREMENT_RUNS):
 
         _, elapsed_ns = measure_operation(
@@ -189,6 +319,9 @@ def benchmark_decryption(
 
 def main():
 
+    # Master collection for all benchmark results.
+    all_results = []
+
     print("=" * 60)
     print("LightCryptBench Timing Benchmark")
     print("=" * 60)
@@ -199,6 +332,10 @@ def main():
         ChaCha20Poly1305()
     ]
 
+    # ========================================================
+    # Run benchmark for each algorithm
+    # ========================================================
+
     for algorithm in algorithms:
 
         print()
@@ -206,6 +343,10 @@ def main():
         print("=" * 60)
 
         key = algorithm.generate_key()
+
+        # ----------------------------------------------------
+        # Run benchmark for each data size
+        # ----------------------------------------------------
 
         for size in DATA_SIZES:
 
@@ -239,15 +380,33 @@ def main():
             )
 
             # ------------------------------------------------
-            # Calculate statistics
+            # Create structured benchmark results
             # ------------------------------------------------
 
-            encryption_stats = calculate_statistics(
+            encryption_result = create_benchmark_result(
+                algorithm,
+                size,
+                "encryption",
                 encryption_timings
             )
 
-            decryption_stats = calculate_statistics(
+            decryption_result = create_benchmark_result(
+                algorithm,
+                size,
+                "decryption",
                 decryption_timings
+            )
+
+            # ------------------------------------------------
+            # Add results to master collection
+            # ------------------------------------------------
+
+            all_results.append(
+                encryption_result
+            )
+
+            all_results.append(
+                decryption_result
             )
 
             # ------------------------------------------------
@@ -273,27 +432,27 @@ def main():
 
             print(
                 f"  Mean:    "
-                f"{encryption_stats['mean_ns']:,.0f} ns"
+                f"{encryption_result['mean_ns']:,.0f} ns"
             )
 
             print(
                 f"  Median:  "
-                f"{encryption_stats['median_ns']:,.0f} ns"
+                f"{encryption_result['median_ns']:,.0f} ns"
             )
 
             print(
                 f"  Minimum: "
-                f"{encryption_stats['min_ns']:,.0f} ns"
+                f"{encryption_result['min_ns']:,.0f} ns"
             )
 
             print(
                 f"  Maximum: "
-                f"{encryption_stats['max_ns']:,.0f} ns"
+                f"{encryption_result['max_ns']:,.0f} ns"
             )
 
             print(
                 f"  StdDev:  "
-                f"{encryption_stats['stdev_ns']:,.0f} ns"
+                f"{encryption_result['stdev_ns']:,.0f} ns"
             )
 
             # ------------------------------------------------
@@ -305,34 +464,62 @@ def main():
 
             print(
                 f"  Mean:    "
-                f"{decryption_stats['mean_ns']:,.0f} ns"
+                f"{decryption_result['mean_ns']:,.0f} ns"
             )
 
             print(
                 f"  Median:  "
-                f"{decryption_stats['median_ns']:,.0f} ns"
+                f"{decryption_result['median_ns']:,.0f} ns"
             )
 
             print(
                 f"  Minimum: "
-                f"{decryption_stats['min_ns']:,.0f} ns"
+                f"{decryption_result['min_ns']:,.0f} ns"
             )
 
             print(
                 f"  Maximum: "
-                f"{decryption_stats['max_ns']:,.0f} ns"
+                f"{decryption_result['max_ns']:,.0f} ns"
             )
 
             print(
                 f"  StdDev:  "
-                f"{decryption_stats['stdev_ns']:,.0f} ns"
+                f"{decryption_result['stdev_ns']:,.0f} ns"
             )
+
+    # ========================================================
+    # Benchmark complete
+    # ========================================================
 
     print()
     print("=" * 60)
     print("Timing benchmark complete.")
     print("=" * 60)
 
+    print()
+    print(
+        f"Total benchmark results collected: "
+        f"{len(all_results)}"
+    )
+
+    # ========================================================
+    # Export results
+    # ========================================================
+
+    output_file = export_results_to_csv(
+        all_results
+    )
+
+    print()
+    print(
+        f"Results exported to: "
+        f"{output_file}"
+    )
+
+
+# ============================================================
+# Program entry point
+# ============================================================
 
 if __name__ == "__main__":
     main()

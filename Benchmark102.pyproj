@@ -54,6 +54,9 @@
     <Compile Include="test_ascon_interface.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_benchmark_result.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_chacha_interface.py">
       <SubType>Code</SubType>
     </Compile>
