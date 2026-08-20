@@ -29,6 +29,9 @@
     <Compile Include="algorithm_interface.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="analyse_benchmark_results.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ascon_algorithm.py">
       <SubType>Code</SubType>
     </Compile>
@@ -48,6 +51,21 @@
     <Compile Include="chacha20_poly1305_algorithm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="comparative_analysis.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="diffusion_analysis.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generate_benchmark_graphs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generate_diffusion_graphs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generate_test_data.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_aes_interface.py">
       <SubType>Code</SubType>
     </Compile>
@@ -60,13 +78,37 @@
     <Compile Include="test_chacha_interface.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_ciphertext_structure.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_common_interface.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_cpu_batching.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_cpu_measurement.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_cpu_time_measurement.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_diffusion_sanity.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_memory_measurement.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="test_temp.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_throughput_calculation.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="validate_benchmark_results.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="validate_diffusion_results.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
